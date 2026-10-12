@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Product recommendations · Shopwise AI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-dark shop-navbar"><div class="container">
+    <a class="navbar-brand fw-semibold" href="{{ url_for('index') }}">Shopwise <span class="brand-dot">AI</span></a>
+    <div class="d-flex gap-2"><a class="btn btn-outline-light btn-sm" href="{{ url_for('index') }}">New search</a><a class="btn btn-light btn-sm" href="{{ url_for('cart') }}">Cart ({{ cart_count }})</a></div>
+  </div></nav>
+  <main class="container py-4 py-lg-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
+      <div><span class="eyebrow">Shopping results</span><h1 class="h2 fw-bold mt-2">Recommendations for you</h1>
+        <p class="text-secondary mb-0">Request: “{{ result.original_query }}”</p></div>
+      <div class="align-self-start"><span class="badge text-bg-light border">{{ result.llm_status }}</span></div>
+    </div>
+    <div class="alert alert-warning demo-banner"><strong>Sample catalog:</strong> displayed listings and all commercial details are demonstration data.</div>
+    {% if result.messages %}
+      <div class="mb-4">
+        {% for message in result.messages %}<div class="alert alert-info py-2 mb-2">{{ message }}</div>{% endfor %}
+      </div>
+    {% endif %}
+    <section class="recommendation-callout mb-4">
+      <h2 class="h5 fw-bold">Recommendation explanation</h2>
+      <p class="mb-0">{{ result.explanation }}</p>
+    </section>
+
+    {% if recommendations %}
+      <h2 class="h4 fw-bold mb-3">Top matches</h2>
+      <div class="row g-3 mb-5">
+        {% for product in recommendations %}
+          <div class="col-md-6 col-xl-4">
+            <article class="card product-card h-100">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <span class="product-category">{{ product.category }} · {{ product.brand }}</span>
+                  <span class="badge {{ 'text-bg-success' if product.stock_status == 'In Stock' else 'text-bg-warning' }}">{{ product.stock_status }}</span>
+                </div>
+                <h3 class="h5 fw-bold mt-2">{{ product.product_name }}</h3>
+                <p class="small text-secondary flex-grow-1">{{ product.description }}</p>
+                <div class="fit-notes mb-3">
+                  <div><strong>Why it matches</strong><ul>{% for reason in product.fit_reasons %}<li>{{ reason }}</li>{% endfor %}</ul></div>
+                  <div><strong>Advantages</strong><p>{{ product.advantages | join('; ') }}</p></div>
+                  <div><strong>Trade-offs</strong><p>{{ product.compromises | join('; ') }}</p></div>
+                  {% if product.remaining_budget is not none %}<small class="text-secondary">Remaining budget: ₹{{ '{:,.0f}'.format(product.remaining_budget) }}</small>{% endif %}
+                </div>
+                <div class="price-line"><strong>₹{{ '{:,.0f}'.format(product.price) }}</strong>
+                  {% if product.original_price > product.price %}<del>₹{{ '{:,.0f}'.format(product.original_price) }}</del><span class="discount">{{ product.discount_percent }}% off</span>{% endif %}
+                </div>
+                <div class="spec-grid mt-3">
+                  <span>RAM<strong>{{ product.ram_gb if product.ram_gb else '—' }}{% if product.ram_gb %} GB{% endif %}</strong></span>
+                  <span>Storage<strong>{{ product.storage_gb if product.storage_gb else '—' }}{% if product.storage_gb %} GB{% endif %}</strong></span>
+                  <span>Processor<strong>{{ product.processor }}</strong></span>
+                  <span>Battery<strong>{{ product.battery_hours if product.battery_hours else '—' }}{% if product.battery_hours %} hrs{% endif %}</strong></span>
+                  <span>Rating<strong>★ {{ product.rating }}</strong></span>
+                  <span>Delivery<strong>{{ product.delivery_days }} demo days</strong></span>
+                </div>
+                <form action="{{ url_for('cart_add') }}" method="post" class="mt-3">
+                  <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                  <div class="input-group">
+                    <input class="form-control" aria-label="Quantity" type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" {% if product.stock_quantity < 1 %}disabled{% endif %}>
+                    <button class="btn btn-primary" type="submit" {% if product.stock_quantity < 1 %}disabled{% endif %}>Add to cart</button>
+                  </div>
+                </form>
+              </div>
+            </article>
+          </div>
+        {% endfor %}
+      </div>
+      <section class="card shop-card mb-5">
+        <div class="card-body p-4">
+          <h2 class="h4 fw-bold">Compare recommendations</h2>
+          <p class="text-secondary">Catalog facts only. Delivery days are sample estimates.</p>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle comparison-table">
+              <thead><tr><th>Product</th><th>Price / budget fit</th><th>RAM</th><th>Storage</th><th>Processor</th><th>Battery</th><th>Rating</th><th>Stock</th><th>Delivery</th></tr></thead>
+              <tbody>
+                {% for product in recommendations %}
+                  <tr>
+                    <th scope="row">{{ product.product_name }}</th>
+                    <td>₹{{ '{:,.0f}'.format(product.price) }}<small class="d-block text-secondary">{{ 'Within budget' if product.within_budget else 'No budget set' }}</small></td>
+                    <td>{{ product.ram_gb or '—' }}{% if product.ram_gb %} GB{% endif %}</td>
+                    <td>{{ product.storage_gb or '—' }}{% if product.storage_gb %} GB{% endif %}</td>
+                    <td>{{ product.processor }}</td><td>{{ product.battery_hours or '—' }}{% if product.battery_hours %} hrs{% endif %}</td>
+                    <td>★ {{ product.rating }}</td><td>{{ product.stock_status }}</td><td>{{ product.estimated_delivery_days }} days*</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <small class="text-secondary">* Demonstration delivery estimate only.</small>
+        </div>
+      </section>
+    {% else %}
+      <div class="empty-state"><div class="display-6">⌕</div><h2 class="h4 fw-bold mt-2">No eligible products found</h2><p class="text-secondary">{{ result.explanation }}</p><a class="btn btn-primary" href="{{ url_for('index') }}">Adjust your search</a></div>
+    {% endif %}
+  </main>
+</body>
+</html>

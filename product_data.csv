@@ -1,0 +1,16 @@
+product_id,product_name,category,brand,price,original_price,discount_percent,ram_gb,storage_gb,processor,battery_hours,rating,stock_quantity,delivery_days,description
+LAP001,Acer Aspire 5,Laptop,Acer,55990,64990,13.85,16,512,Intel Core i5-12450H,8,4.4,12,4,Everyday laptop for programming and online learning
+LAP002,Lenovo IdeaPad Slim 5,Laptop,Lenovo,58990,69990,15.72,16,512,AMD Ryzen 7 7730U,10,4.6,8,3,Portable laptop with long battery life for study and coding
+LAP003,ASUS Vivobook 15,Laptop,ASUS,47990,56990,15.79,16,512,AMD Ryzen 5 7530U,8,4.3,5,5,Balanced laptop for classes office tasks and beginner coding
+LAP004,HP Pavilion 14,Laptop,HP,62990,72990,13.70,16,512,Intel Core i5-1335U,9,4.5,0,2,Lightweight laptop for productivity and online classes
+LAP005,Dell Inspiron 15,Laptop,Dell,64990,74990,13.34,16,1024,Intel Core i5-1335U,7,4.4,6,4,Laptop with extra storage for study and development projects
+LAP006,Apple MacBook Air M2,Laptop,Apple,89990,99900,9.92,8,256,Apple M2,15,4.8,4,3,Lightweight laptop with long battery life for productivity
+LAP007,Lenovo LOQ 15,Laptop,Lenovo,74990,84990,11.77,16,512,AMD Ryzen 7 7840HS,6,4.6,3,6,Performance laptop for development and graphics workloads
+LAP008,MSI Modern 14,Laptop,MSI,52990,61990,14.52,16,512,Intel Core i5-1235U,7,4.2,2,5,Compact laptop for everyday work and student projects
+LAP009,ASUS TUF Gaming A15,Laptop,ASUS,79990,92990,14.00,16,1024,AMD Ryzen 7 7735HS,7,4.7,7,5,Performance laptop with dedicated graphics for demanding tasks
+LAP010,HP 15s,Laptop,HP,42990,49990,14.00,8,512,AMD Ryzen 5 5500U,7,4.1,9,4,Affordable laptop for browsing documents and online learning
+TAB001,Samsung Galaxy Tab S9 FE,Tablet,Samsung,32999,39999,17.50,8,256,Exynos 1380,12,4.5,10,3,Tablet for reading video calls and note taking
+TAB002,Apple iPad 10th Gen,Tablet,Apple,34900,39900,12.53,4,64,Apple A14,10,4.7,0,2,Tablet for media note taking and everyday apps
+MON001,LG UltraGear 24,Monitor,LG,12990,16990,23.54,0,0,Full HD 144Hz,0,4.6,11,3,Full HD monitor for work study and gaming
+AUD001,Sony WH-CH720N,Headphones,Sony,8990,12990,30.79,0,0,Wireless noise cancelling,35,4.5,15,2,Wireless headphones for calls study and travel
+ACC001,Logitech MX Keys Mini,Accessories,Logitech,7995,9995,20.01,0,0,Wireless keyboard,0,4.4,0,4,Compact wireless keyboard for laptop productivity

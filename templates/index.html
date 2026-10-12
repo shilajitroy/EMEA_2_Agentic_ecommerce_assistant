@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentic E-Commerce Shopping Assistant</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark shop-navbar">
+    <div class="container">
+      <a class="navbar-brand fw-semibold" href="{{ url_for('index') }}">Shopwise <span class="brand-dot">AI</span></a>
+      <a class="btn btn-outline-light btn-sm" href="{{ url_for('cart') }}">Simulated cart</a>
+    </div>
+  </nav>
+  <main class="container py-5">
+    <section class="hero-panel mb-4">
+      <span class="eyebrow">Your local shopping guide</span>
+      <h1 class="display-5 fw-bold mt-2">Find the right tech for you.</h1>
+      <p class="lead mb-0">Describe what you need. The assistant searches, compares and recommends from a local sample catalog.</p>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert {{ 'alert-danger' if category == 'error' else 'alert-success' if category == 'success' else 'alert-info' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="alert alert-warning demo-banner">
+      <strong>Demonstration data:</strong> products, specifications, prices, discounts, ratings, inventory and delivery estimates are samples—not live listings or offers.
+    </div>
+
+    <section class="card shop-card mb-5">
+      <div class="card-body p-4 p-lg-5">
+        <h2 class="h4 section-title">Tell us what you’re looking for</h2>
+        <p class="text-secondary">Budget is a maximum. The assistant will not exceed it or recommend an out-of-stock item as available.</p>
+        <form action="{{ url_for('search') }}" method="post">
+          <label for="query" class="form-label fw-semibold">Your shopping requirements</label>
+          <textarea class="form-control mb-3" id="query" name="query" rows="3" maxlength="1500" required
+            placeholder="I need a laptop under ₹60,000 for Python, online classes, 16 GB RAM and at least 512 GB SSD.">{{ query or '' }}</textarea>
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <label for="budget" class="form-label">Maximum budget (₹)</label>
+              <input class="form-control" id="budget" name="budget" type="number" min="0" max="10000000" step="1" placeholder="e.g. 60000">
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="category" class="form-label">Category</label>
+              <select class="form-select" id="category" name="category">
+                <option value="">Any category</option>
+                {% for category in categories %}
+                  <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="processor" class="form-label">Processor contains (optional)</label>
+              <input class="form-control" id="processor" name="processor" maxlength="80" placeholder="e.g. Ryzen 7">
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="min_ram_gb" class="form-label">Minimum RAM (GB)</label>
+              <input class="form-control" id="min_ram_gb" name="min_ram_gb" type="number" min="0" max="1024" step="1" placeholder="Any">
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="min_storage_gb" class="form-label">Minimum storage (GB)</label>
+              <input class="form-control" id="min_storage_gb" name="min_storage_gb" type="number" min="0" max="100000" step="1" placeholder="Any">
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="min_battery_hours" class="form-label">Minimum battery life (hours)</label>
+              <input class="form-control" id="min_battery_hours" name="min_battery_hours" type="number" min="0" max="100" step="1" placeholder="Any">
+            </div>
+          </div>
+          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mt-4">
+            <small class="text-secondary">Optional LLM features can be enabled in <code>.env</code>; shopping filters work without an API key. Don’t include account numbers, card details, passwords, or other private information.</small>
+            <button class="btn btn-primary px-4" type="submit">Search products</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="faq-panel">
+      <div class="row g-4 align-items-start">
+        <div class="col-lg-5">
+          <span class="eyebrow">Grounded answers</span>
+          <h2 class="h3 fw-bold mt-2">Ask a product FAQ</h2>
+          <p class="text-secondary">Search sample product questions using local embeddings and Chroma. If no LLM key is configured, matching FAQ answers are returned directly.</p>
+        </div>
+        <div class="col-lg-7">
+          <form action="{{ url_for('faq') }}" method="post">
+            <label for="faq_question" class="form-label fw-semibold">Your question</label>
+            <div class="input-group">
+              <input class="form-control" id="faq_question" name="faq_question" maxlength="500" required value="{{ faq_question or '' }}" placeholder="How long does delivery take?">
+              <button class="btn btn-outline-primary" type="submit">Ask FAQ</button>
+            </div>
+          </form>
+          {% if faq_result %}
+            <div class="faq-answer mt-3" role="status">
+              <div class="fw-semibold mb-2">Answer <span class="badge text-bg-light">{{ faq_result.mode }}</span></div>
+              <p class="mb-2">{{ faq_result.answer }}</p>
+              {% if faq_result.sources %}
+                <small class="text-secondary">FAQ topics: {{ faq_result.sources | map(attribute='topic') | unique | join(', ') }}</small>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+    <p class="small text-secondary mt-5 mb-0">This is a training demo. No payments are accepted and no real orders are placed.</p>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
